@@ -1,0 +1,12 @@
+.DS_Store
+Thumbs.db
+
+.bash_history
+.zsh_history
+fish_history
+.histfile
+
+**/__pycache__/
+
+# atuin
+history.db*
