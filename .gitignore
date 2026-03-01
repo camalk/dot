@@ -10,3 +10,5 @@ fish_history
 
 # atuin
 history.db*
+config/fish/fish_variables
+config/fish/completions
