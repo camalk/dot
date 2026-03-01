@@ -1,0 +1,9 @@
+theme = Nvim Dark
+theme = Gruvbox Material Dark
+font-family = "BlexMono Nerd Font"
+font-size = 16
+
+window-padding-x = 18
+window-padding-y = 16
+
+macos-option-as-alt = left
