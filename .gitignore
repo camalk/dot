@@ -12,3 +12,4 @@ fish_history
 history.db*
 config/fish/fish_variables
 config/fish/completions
+config/tmux/plugins
