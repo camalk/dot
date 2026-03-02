@@ -33,7 +33,8 @@ assert() {
     local message="${@: -1}"        # last arg is message
     local predicate=("${@:1:$#-1}") # all but last arg is predicate
     if ! eval "${predicate[*]}"; then
-        echo "error: assertion failed with status $?. $message" >&2
+        local status=$?
+        echo "error: assertion failed with status $status. $message" >&2
         exit 1
     fi
 }
