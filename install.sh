@@ -24,9 +24,7 @@ NERD_FONTS=(
 # ===========================================
 failwith() {
     if [[ "$#" -lt 1 ]]; then
-        echo "error: failwith() requires at least 1 argument" >&2
-        echo "usage:"
-        echo "  failwith <message> <exitcode?>"
+        echo "error: failwith() requires at least 1 argument: usage: failwith <message> <exitcode?>" >&2
         exit 1
     fi
     echo "$1" >&2
@@ -34,37 +32,22 @@ failwith() {
 }
 
 installed() {
-    if [[ "$#" -ne 1 ]]; then
-        echo "error: installed() requires exactly one argument" >&2
-        exit 1
-    fi
+    [[ "$#" -ne 1 ]] || failwith "error: installed() requires exactly one argument: usage: installed <command>"
     command -v "$1" &>/dev/null
 }
 
-is_mac() {
-    [[ "$OS" == "darwin" ]]
-}
+is_mac() { [[ "$OS" == "darwin" ]]; }
 
-is_arm64() {
-    [[ "$ARCH" == "arm64" ]]
-}
+is_arm64() { [[ "$ARCH" == "arm64" ]]; }
 
-repo_root_dir() {
-    git rev-parse --show-toplevel
-}
+repo_root_dir() { git rev-parse --show-toplevel; }
 
-pwd_is_repo_root_dir() {
-    [[ $(pwd) == $(repo_root_dir) ]]
-}
+pwd_is_repo_root_dir() { [[ $(pwd) == $(repo_root_dir) ]]; }
 
 font_path() {
     case $OS in
-    "darwin")
-        echo "$HOME/Library/Fonts"
-        ;;
-    "linux")
-        echo "${XDG_DATA_HOME:-$HOME/.local/share}/fonts"
-        ;;
+    "darwin") echo "$HOME/Library/Fonts" ;;
+    "linux") echo "${XDG_DATA_HOME:-$HOME/.local/share}/fonts" ;;
     *)
         echo "error: unsupported os ('$OS') has no font path specified" >&2
         return 1
@@ -73,22 +56,18 @@ font_path() {
 }
 
 nerd_font_installed() {
-    if [[ "$#" -ne 2 ]]; then
-        echo "error: nerd_font_installed() requires exactly 2 arguments" >&2
-        echo "usage:"
-        echo "  nerd_font_installed <font> <install_path>"
-    fi
+    [[ "$#" -ne 2 ]] ||
+        failwith "error: nerd_font_installed() requires exactly 2 arguments: usage: nerd_font_installed <font> <install_path>"
+
     local font="$1"
     local install_path="$2"
     [[ -f "${install_path}/${font}-Regular.ttf" ]]
 }
 
 install_nerd_font() {
-    if [[ "$#" -ne 2 ]]; then
-        echo "error: download_nerd_font() requires exactly 2 arguments" >&2
-        echo "usage:"
-        echo "  download_nerd_font <font> <install_path>"
-    fi
+    [[ "$#" -ne 2 ]] ||
+        failwith "error: download_nerd_font() requires exactly 2 arguments: usage: download_nerd_font <font> <install_path>"
+
     local font="$1"
     local install_path="$2"
 
@@ -166,7 +145,8 @@ setup_git() {
 }
 
 stow_files() {
-    pwd_is_repo_root_dir || failwith "$PWD does not match expected root dir $(repo_root_dir). some commands may not work as expected"
+    pwd_is_repo_root_dir ||
+        failwith "$PWD does not match expected root dir $(repo_root_dir). some commands may not work as expected"
     stow --target="$HOME/.config" --no-folding ./config
     stow --target="$HOME/.local/bin" --no-folding ./bin
 }
