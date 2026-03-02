@@ -1,4 +1,10 @@
 #!/usr/bin/env bash
+
+# pre
+# ===========================================
+#
+# I've tried to make these various installation steps
+# composable and (wherever possible) idempotent.
 set -euo pipefail
 
 OS=$(uname -s | tr "[:upper:]" "[:lower:]")
@@ -85,34 +91,40 @@ if [[ ${#missing[@]} -gt 0 ]]; then
     exit 1
 fi
 
-setup_nerd_fonts() {
-    echo "info: installing fonts"
+ensure_fonts() {
+    echo "info: installing nerd fonts"
 
-    # dont declare and assign in one, local * doesnt propagate exit codes
-    local os_aware_font_path
-    os_aware_font_path=$(font_path) || {
+    local fp
+    fp=$(font_path) || {
         echo "warning: skipping fonts" >&2
         return 0
     }
 
     for font in "${NERD_FONTS[@]}"; do
-        local tmp_dir=$(mktemp -d -t "$font")
-        if [[ -f "${os_aware_font_path}/${font}-Regular.ttf" ]]; then
-            echo "info: font $font seems to already exist in $os_aware_font_path. skipping installation"
-        else
-            echo "info: installing font $font to $os_aware_font_path via tmp dir $tmp_dir"
-            local dl_path="/tmp/${font}.tar.xz"
-            curl -fsSL "${NERD_FONT_BASE_URL}/${font}" -o "$dl_path"
-            tar -xf "$dl_path" --directory "$tmp_dir"
+        local check_file="${fp}/${font}-Regular.ttf"
 
-            # only keep the 'normal' fonts, not the 'variants' like Mono, MonoPropo, Propo etc.
-            cp "${tmp_dir}/${font}"-*.ttf "$os_aware_font_path"
-
-            # update font cache
-            [[ "$OS" == "linux" ]] && fc-cache -fv
-
-            rm -rf "${tmp_dir}" "${dl_path}"
+        if [[ -f $check_file ]]; then
+            echo "$font already exists in $fp. skipping"
+            continue
         fi
+
+        echo "info: installing font $font to $fp"
+        local font_link="${NERD_FONT_BASE_URL}/${font}"
+        local download_path="/tmp/${font}.tar.xz"
+        local extract_dir=$(mktemp -d -t "$font")
+
+        curl -fsSL "$font_link" -o "$download_path" || {
+            echo "error: failed downloading $font" >&2
+            rm -rf "${extract_dir}" # cleanup
+            continue
+        }
+
+        tar -xf "$download_path" --directory "$extract_dir"
+        cp "${extract_dir}/${font}"-*.ttf "$fp" # ignore Mono, Propo variants etc.
+
+        [[ "$OS" == "linux" ]] && fc-cache -fv # update linux font cache
+
+        rm -rf "${extract_dir}" "${download_path}" # cleanup
     done
 }
 
@@ -172,9 +184,9 @@ setup_mac() {
         sleep 5
     fi
 
-    # setup_homebrew
-    # setup_nerd_fonts
-    # stow_files
+    setup_homebrew
+    ensure_fonts
+    stow_files
 }
 
 setup_mac
