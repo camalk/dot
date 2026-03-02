@@ -72,6 +72,44 @@ font_path() {
     esac
 }
 
+nerd_font_installed() {
+    if [[ "$#" -ne 2 ]]; then
+        echo "error: nerd_font_installed() requires exactly 2 arguments" >&2
+        echo "usage:"
+        echo "  nerd_font_installed <font> <install_path>"
+    fi
+    local font="$1"
+    local install_path="$2"
+    [[ -f "${install_path}/${font}-Regular.ttf" ]]
+}
+
+install_nerd_font() {
+    if [[ "$#" -ne 2 ]]; then
+        echo "error: download_nerd_font() requires exactly 2 arguments" >&2
+        echo "usage:"
+        echo "  download_nerd_font <font> <install_path>"
+    fi
+    local font="$1"
+    local install_path="$2"
+
+    local font_link="${NERD_FONT_BASE_URL}/${font}"
+    local download_path="/tmp/${font}.tar.xz"
+    local extract_dir=$(mktemp -d -t "$font")
+
+    curl -fsSL "$font_link" -o "$download_path" || {
+        echo "error: failed downloading $font" >&2
+        rm -rf "${extract_dir}" # cleanup
+        continue
+    }
+
+    tar -xf "$download_path" --directory "$extract_dir"
+    cp "${extract_dir}/${font}"-*.ttf "$install_path" # ignore Mono, Propo variants etc.
+
+    [[ "$OS" == "linux" ]] && fc-cache -fv # update linux font cache
+
+    rm -rf "${extract_dir}" "${download_path}" # cleanup
+}
+
 # impl
 # ===========================================
 ensure_fonts() {
@@ -84,30 +122,13 @@ ensure_fonts() {
     }
 
     for font in "${NERD_FONTS[@]}"; do
-        local check_file="${fp}/${font}-Regular.ttf"
-
-        if [[ -f $check_file ]]; then
+        nerd_font_installed "$fp" "$font" && {
             echo "$font already exists in $fp. skipping"
-            continue
-        fi
-
-        echo "info: installing font $font to $fp"
-        local font_link="${NERD_FONT_BASE_URL}/${font}"
-        local download_path="/tmp/${font}.tar.xz"
-        local extract_dir=$(mktemp -d -t "$font")
-
-        curl -fsSL "$font_link" -o "$download_path" || {
-            echo "error: failed downloading $font" >&2
-            rm -rf "${extract_dir}" # cleanup
             continue
         }
 
-        tar -xf "$download_path" --directory "$extract_dir"
-        cp "${extract_dir}/${font}"-*.ttf "$fp" # ignore Mono, Propo variants etc.
-
-        [[ "$OS" == "linux" ]] && fc-cache -fv # update linux font cache
-
-        rm -rf "${extract_dir}" "${download_path}" # cleanup
+        echo "info: installing font $font to $fp"
+        install_nerd_font "$font" "$fp"
     done
 }
 
