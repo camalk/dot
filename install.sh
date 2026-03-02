@@ -22,21 +22,15 @@ NERD_FONTS=(
 
 # helper functions
 # ===========================================
-assert() {
+failwith() {
     if [[ "$#" -lt 1 ]]; then
-        echo "error: assert() requires at least 1 argument" >&2
+        echo "error: failwith() requires at least 1 argument" >&2
         echo "usage:"
-        echo "  assert <condition> <errormessage?>"
+        echo "  failwith <message> <exitcode?>"
         exit 1
     fi
-
-    local message="${@: -1}"          # last arg is message
-    local predicate=("${@:1:$#-1}")   # all but last arg is predicate
-    if ! eval "${predicate[*]}"; then # do I care that I'm using eval in my own script?
-        local status=$?
-        echo "error: assertion failed with status $status. $message" >&2
-        exit 1
-    fi
+    echo "$1" >&2
+    exit "${2:-1}"
 }
 
 installed() {
@@ -118,7 +112,7 @@ ensure_fonts() {
 }
 
 setup_homebrew() {
-    assert is_mac "cannot call setup_homebrew() on non-macOS: detected $OS"
+    is_mac || failwith "cannot call setup_homebrew() on non-macOS: detected $OS"
 
     if is_arm64; then BREW_PREFIX="/opt/homebrew" else BREW_PREFIX="/usr/local"; fi
 
@@ -133,7 +127,7 @@ setup_homebrew() {
 }
 
 setup_git() {
-    assert installed git "cannot proceed with setup_git(). git installation not found"
+    installed git || failwith "cannot proceed with setup_git(). git installation not found"
 
     git config --global user.name "$GIT_NAME"
     git config --global user.email "$GIT_EMAIL"
@@ -154,7 +148,7 @@ setup_git() {
 }
 
 stow_files() {
-    assert pwd_is_repo_root_dir "$PWD does not match expected root dir $(repo_root_dir). some commands may not work as expected"
+    pwd_is_repo_root_dir || failwith "$PWD does not match expected root dir $(repo_root_dir). some commands may not work as expected"
     stow --target="$HOME/.config" --no-folding ./config
     stow --target="$HOME/.local/bin" --no-folding ./bin
 }
@@ -162,7 +156,7 @@ stow_files() {
 # os setup
 # ===========================================
 setup_mac() {
-    assert is_mac "cannot call setup_mac() on non-macOS: detected $OS"
+    is_mac || failwith "cannot call setup_mac() on non-macOS: detected $OS"
 
     echo "info: installing xcode-select command line tools"
     if xcode-select -p &>/dev/null; then
