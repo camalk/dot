@@ -159,13 +159,10 @@ setup_git() {
     git config --global rebase.autosquash true
     git config --global rebase.autostash true
     git config --global merge.conflictStyle zdiff3
+    git config --global url."git@github.com:".insteadOf "gh:" # use `git clone gh:owner/repo`
 
-    # use `git clone gh:owner/repo`
-    git config --global url."git@github.com:".insteadOf "gh:"
+    is_mac && git config --global credential.helper osxkeychain
 
-    if [[ "$OS" == "darwin" ]]; then
-        git config --global credential.helper osxkeychain
-    fi
 }
 
 stow_files() {
