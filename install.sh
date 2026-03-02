@@ -30,9 +30,9 @@ assert() {
         exit 1
     fi
 
-    local message="${@: -1}"        # last arg is message
-    local predicate=("${@:1:$#-1}") # all but last arg is predicate
-    if ! eval "${predicate[*]}"; then
+    local message="${@: -1}"          # last arg is message
+    local predicate=("${@:1:$#-1}")   # all but last arg is predicate
+    if ! eval "${predicate[*]}"; then # do I care that I'm using eval in my own script?
         local status=$?
         echo "error: assertion failed with status $status. $message" >&2
         exit 1
@@ -80,18 +80,6 @@ font_path() {
 
 # impl
 # ===========================================
-missing=()
-if ! installed sudo; then missing+=("sudo"); fi
-
-for dep in "${DEPS[@]}"; do
-    installed "$dep" || missing+=("$dep")
-done
-
-if [[ ${#missing[@]} -gt 0 ]]; then
-    echo "error: missing dependencies: ${missing[*]}" >&2
-    exit 1
-fi
-
 ensure_fonts() {
     echo "info: installing nerd fonts"
 
@@ -190,4 +178,29 @@ setup_mac() {
     stow_files
 }
 
-setup_mac
+# entry
+# ===========================================
+main() {
+    missing=()
+    if ! installed sudo; then missing+=("sudo"); fi
+
+    for dep in "${DEPS[@]}"; do
+        installed "$dep" || missing+=("$dep")
+    done
+
+    if [[ ${#missing[@]} -gt 0 ]]; then
+        echo "error: missing dependencies: ${missing[*]}" >&2
+        exit 1
+    fi
+
+    case "$OS" in
+    "darwin") setup_mac ;;
+    "linux") echo "todo" ;;
+    *)
+        echo "unsupported os: $OS" >&2
+        exit 1
+        ;;
+    esac
+}
+
+main "$@"
