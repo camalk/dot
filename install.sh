@@ -69,7 +69,7 @@ font_path() {
         echo "$HOME/Library/Fonts"
         ;;
     "linux")
-        echo "$XDG_DATA_HOME/fonts"
+        echo "${XDG_DATA_HOME:-$HOME/.local/share}/fonts"
         ;;
     *)
         echo "error: unsupported os ('$OS') has no font path specified" >&2
