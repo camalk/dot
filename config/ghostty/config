@@ -1,6 +1,6 @@
 theme = Nvim Dark
-font-family = "DepartureMono Nerd Font"
-font-size = 16
+font-family = "IosevkaTerm Nerd Font"
+font-size = 18
 
 window-padding-x = 18
 window-padding-y = 16
