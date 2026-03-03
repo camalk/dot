@@ -16,7 +16,8 @@ DEPS=(
 
 NERD_FONT_BASE_URL="https://github.com/ryanoasis/nerd-fonts/releases/latest/download"
 NERD_FONTS=(
-    "IosevkaTermSlab"
+    "IosevkaTerm"
+    "DepartureMono"
 )
 
 # helper functions
