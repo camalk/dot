@@ -16,7 +16,6 @@ DEPS=(
 
 NERD_FONT_BASE_URL="https://github.com/ryanoasis/nerd-fonts/releases/latest/download"
 NERD_FONTS=(
-    "IBMPlexMono"
     "IosevkaTermSlab"
 )
 
@@ -37,11 +36,8 @@ installed() {
 }
 
 is_mac() { [[ "$OS" == "darwin" ]]; }
-
 is_arm64() { [[ "$ARCH" == "arm64" ]]; }
-
 repo_root_dir() { git rev-parse --show-toplevel; }
-
 pwd_is_repo_root_dir() { [[ $(pwd) == $(repo_root_dir) ]]; }
 
 font_path() {

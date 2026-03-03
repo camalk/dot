@@ -1,6 +1,5 @@
 theme = Nvim Dark
 theme = Gruvbox Material Dark
-font-family = "BlexMono Nerd Font"
 font-size = 16
 
 window-padding-x = 18
