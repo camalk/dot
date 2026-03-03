@@ -3,7 +3,7 @@ if status is-interactive
     starship init fish | source
     zoxide init fish | source
     atuin init fish --disable-up-arrow | source
-    fnm env --use-on-cd --shell fish | source
+    fnm env --use-on-cd --shell fish --corepack-enabled | source
 end
 
 fish_add_path ~/.cargo/bin
@@ -29,13 +29,6 @@ source ~/.orbstack/shell/init2.fish 2>/dev/null || :
 # bun
 set --export BUN_INSTALL "$HOME/.bun"
 set --export PATH $BUN_INSTALL/bin $PATH
-
-# pnpm
-set -gx PNPM_HOME /Users/cameron/Library/pnpm
-if not string match -q -- $PNPM_HOME $PATH
-    set -gx PATH "$PNPM_HOME" $PATH
-end
-# pnpm end
 
 # BEGIN opam configuration
 # This is useful if you're using opam as it adds:
