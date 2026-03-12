@@ -37,3 +37,10 @@ set --export PATH $BUN_INSTALL/bin $PATH
 # This section can be safely removed at any time if needed.
 test -r '/Users/cameron/.opam/opam-init/init.fish' && source '/Users/cameron/.opam/opam-init/init.fish' >/dev/null 2>/dev/null; or true
 # END opam configuration
+
+# pnpm
+set -gx PNPM_HOME "/Users/cameron/Library/pnpm"
+if not string match -q -- $PNPM_HOME $PATH
+  set -gx PATH "$PNPM_HOME" $PATH
+end
+# pnpm end
